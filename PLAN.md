@@ -11,7 +11,7 @@ Rule: never trade job applications for this project. Apply to at least 5 roles a
 | # | Phase | Hours | Done when |
 |---|-------|-------|-----------|
 | 1 | Setup + Python ingestion | 10 | Repo, tests, CI green; OpenDOSM `cpi_core` lands in raw Parquet (done 2026-10-20) |
-| 2 | Ingestion | 10 | 3 datasets total; scheduled run via GitHub Actions cron (no Airflow, see decisions) |
+| 2 | Ingestion | 10 | 3 datasets total; scheduled run via GitHub Actions cron (no Airflow, see decisions) (built 2026-10-21; first scheduled run due 2026-10-22 02:00 UTC) |
 | 3 | Warehouse | 35 | DuckDB with raw / clean / mart layers; dbt models with tests and generated docs |
 | 4 | Cloud | 40 | Marts loaded to one free-tier cloud warehouse, built hands-on (not design only); documented cost guard |
 | 5 | AI layer | 70 | Read-only text-to-SQL assistant + RAG over dataset docs; 30-50 question test set with accuracy score |
@@ -25,6 +25,7 @@ Rule: never trade job applications for this project. Apply to at least 5 roles a
 ## Decisions made
 - 2026-10-20: Drop Airflow. My work already shows Python and orchestration (dlt, dbt, Dagster) on client projects; the real CV gaps are hands-on cloud and AI. The freed hours go to phases 4 and 5. On the CV, name Dagster as the orchestration skill; do not claim Airflow.
 - 2026-10-20: Data source is the OpenDOSM API (CC BY 4.0, 4 requests/minute). First dataset `cpi_core`.
+- 2026-10-21: Datasets frozen at three: `cpi_core`, `lfs_month` (DOSM) and `fuelprice` (MoF, Data Catalogue API). Chosen for different grains (monthly by division, monthly national, weekly with two series types) to give the text-to-SQL assistant varied questions. Raw Parquet is a 30-day Actions artifact until phase 4.
 
 ## Decisions to make early
 - Cloud: choose by counting which cloud appears most in 30 target job ads (Azure vs GCP vs AWS). Use only the free tier and set a budget alert.
