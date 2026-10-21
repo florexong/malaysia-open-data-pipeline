@@ -14,6 +14,7 @@ __pycache__/
 *.duckdb
 dbt/target/
 dbt/logs/
+dbt/.user.yml
 logs/
 .DS_Store
 .claude/settings.local.json

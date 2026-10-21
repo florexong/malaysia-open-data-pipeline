@@ -1,31 +1,60 @@
-name: Ingest
+name: Pipeline
 
-# Weekly pull of every registered dataset. Fuel prices are published Wednesday
-# 23:59 MYT (15:59 UTC), so run Thursday 02:00 UTC (10:00 MYT).
+# Ingest every dataset, then build and test the dbt warehouse on real data.
+# Weekly: fuel prices are published Wednesday 23:59 MYT (15:59 UTC), so run Thursday
+# 02:00 UTC (10:00 MYT). Also runs when ingestion or dbt code changes on main.
 on:
   schedule:
     - cron: "0 2 * * 4"
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "ingestion/**"
+      - "dbt/**"
+      - "pyproject.toml"
+      - ".github/workflows/pipeline.yml"
 
 permissions:
   contents: read
 
+concurrency:
+  group: pipeline
+  cancel-in-progress: false
+
 jobs:
-  ingest:
+  pipeline:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
           cache: pip
-      - run: pip install -e .
-      - run: python -m ingestion.datagovmy --all
-      # Raw Parquet is kept as a build artifact until the cloud phase gives it a real home.
+      - run: pip install -e ".[dbt]"
+      - name: Ingest
+        run: python -m ingestion.datagovmy --all
+      - name: dbt build (models + tests)
+        working-directory: dbt
+        run: dbt build
+      - name: dbt docs
+        working-directory: dbt
+        run: dbt docs generate
+      # Artifacts stand in for storage until the cloud phase.
       - uses: actions/upload-artifact@v4
         with:
-          name: raw-parquet-${{ github.run_id }}
-          path: data/raw/
+          name: warehouse-${{ github.run_id }}
+          path: |
+            data/raw/
+            data/warehouse.duckdb
           retention-days: 30
           if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dbt-docs-${{ github.run_id }}
+          path: |
+            dbt/target/index.html
+            dbt/target/manifest.json
+            dbt/target/catalog.json
+          retention-days: 30
