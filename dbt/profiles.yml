@@ -1,0 +1,8 @@
+# No secrets: a local DuckDB file. dbt picks this file up when run from this folder.
+malaysia_open_data:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: "{{ env_var('DUCKDB_PATH', '../data/warehouse.duckdb') }}"
+      threads: 4

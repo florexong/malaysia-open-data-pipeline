@@ -1,0 +1,17 @@
+version: 2
+
+seeds:
+  - name: mcoicop_divisions
+    description: >
+      CPI division names (MCOICOP, 2-digit level plus the overall index), taken from the DOSM
+      MCOICOP lookup (https://open.dosm.gov.my/data-catalogue/mcoicop, CC BY 4.0) on 2026-10-21.
+    config:
+      column_types:
+        division_code: varchar
+    columns:
+      - name: division_code
+        data_tests: [unique, not_null]
+      - name: division_name_en
+        data_tests: [not_null]
+      - name: division_name_bm
+        data_tests: [not_null]

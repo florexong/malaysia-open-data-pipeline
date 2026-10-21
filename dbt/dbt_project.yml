@@ -1,0 +1,28 @@
+name: malaysia_open_data
+version: "0.3.0"
+profile: malaysia_open_data
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+target-path: target
+clean-targets: [target, dbt_packages]
+
+# Raw = Parquet files read in place (see models/staging/_sources.yml).
+# Staging and marts are tables, not views: the source paths are relative to this folder,
+# so views would break when the warehouse is queried from anywhere else.
+models:
+  malaysia_open_data:
+    +materialized: table
+    staging:
+      +schema: staging
+    marts:
+      +schema: marts
+
+seeds:
+  malaysia_open_data:
+    +schema: reference
+
+flags:
+  send_anonymous_usage_stats: false
