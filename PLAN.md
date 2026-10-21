@@ -11,8 +11,8 @@ Rule: never trade job applications for this project. Apply to at least 5 roles a
 | # | Phase | Hours | Done when |
 |---|-------|-------|-----------|
 | 1 | Setup + Python ingestion | 10 | Repo, tests, CI green; OpenDOSM `cpi_core` lands in raw Parquet (done 2026-10-20) |
-| 2 | Ingestion | 10 | 3 datasets total; scheduled run via GitHub Actions cron (no Airflow, see decisions) (built 2026-10-21) |
-| 3 | Warehouse | 35 | DuckDB with raw / clean / mart layers; dbt models with tests and generated docs (built 2026-10-21) |
+| 2 | Ingestion | 10 | 3 datasets total; scheduled run via GitHub Actions cron (no Airflow, see decisions) (done 2026-10-21) |
+| 3 | Warehouse | 35 | DuckDB with raw / clean / mart layers; dbt models with tests and generated docs (done 2026-10-21) |
 | 4 | Cloud | 40 | Marts loaded to one free-tier cloud warehouse, built hands-on (not design only); documented cost guard |
 | 5 | AI layer | 70 | Read-only text-to-SQL assistant + RAG over dataset docs; 30-50 question test set with accuracy score |
 | 6 | Polish | 35 | Data-quality checks, architecture diagram, README, demo, short write-up |
