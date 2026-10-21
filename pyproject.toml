@@ -1,5 +1,5 @@
 [project]
-name = "locktf"
+name = "malaysia-open-data-pipeline"
 version = "0.1.0"
 description = "Malaysia open data pipeline and Q&A assistant"
 requires-python = ">=3.12"

@@ -1,6 +1,6 @@
 # Malaysia Open Data Pipeline and Q&A Assistant
 
-[![CI](https://github.com/OWNER/REPO/actions/workflows/ci.yml/badge.svg)](https://github.com/OWNER/REPO/actions/workflows/ci.yml)
+[![CI](https://github.com/florexong/malaysia-open-data-pipeline/actions/workflows/ci.yml/badge.svg)](https://github.com/florexong/malaysia-open-data-pipeline/actions/workflows/ci.yml)
 
 A free-tool data engineering portfolio project: ingest public Malaysian open data, model it in a warehouse with tested dbt models, and answer plain-English questions over it with a read-only text-to-SQL assistant.
 
