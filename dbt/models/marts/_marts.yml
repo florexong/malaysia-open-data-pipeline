@@ -1,0 +1,68 @@
+version: 2
+
+models:
+  - name: fct_cpi_core_monthly
+    description: Core CPI by division and month with names and month-on-month / year-on-year change.
+    data_tests:
+      - unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [month, division_code]
+    columns:
+      - name: month
+        data_tests: [not_null]
+      - name: division_code
+        data_tests: [not_null]
+      - name: division_name_en
+        description: English division name from the DOSM MCOICOP lookup.
+        data_tests: [not_null]
+      - name: cpi_index
+        description: Core CPI, base 2010 = 100.
+      - name: mom_pct_change
+        description: Percent change on the previous month; null for the first month.
+      - name: yoy_pct_change
+        description: Percent change on the same month a year earlier; null for the first 12 months.
+
+  - name: fct_labour_force_monthly
+    description: Monthly labour force figures (thousands of persons) and rates (percent).
+    columns:
+      - name: month
+        data_tests: [unique, not_null]
+      - name: unemployment_rate_yoy_pp_change
+        description: Change in unemployment rate versus a year earlier, in percentage points.
+      - name: population_basis
+        description: Census the survey is weighted to; the series breaks between census_2010 and census_2020 (Jan 2025).
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [census_2010, census_2020]
+
+  - name: fct_fuel_price_weekly
+    description: Retail fuel prices in RM per litre per announcement, with validity range and change on the previous announcement.
+    columns:
+      - name: effective_date
+        data_tests: [unique, not_null]
+      - name: valid_to
+        description: Last day the price applied; null for the price currently in effect.
+      - name: ron95_budi95_rm
+        description: Subsidised RON95 price under BUDI95 (from 2025-09-30); null before.
+
+  - name: mart_monthly_economy
+    description: >
+      One row per month joining overall core CPI, labour force and fuel prices. Fuel prices are
+      the average over the days of the month weighted by how long each price applied; the
+      current, incomplete month has no fuel average.
+    columns:
+      - name: month
+        data_tests: [unique, not_null]
+      - name: unemployment_rate_pct
+        data_tests:
+          - between:
+              arguments:
+                min_value: 0
+                max_value: 100
+      - name: avg_ron95_rm
+        data_tests:
+          - between:
+              arguments:
+                min_value: 0
+                max_value: 10
