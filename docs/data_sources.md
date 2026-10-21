@@ -26,10 +26,15 @@ Catalogue pages:
 - https://open.dosm.gov.my/data-catalogue/lfs_month
 - https://data.gov.my/data-catalogue/fuelprice
 
-## Notes for modelling (phase 3)
-- `lfs_month`: rates such as `u_rate` are stored as percentages (e.g. `3.5`), not 0-1 ratios. Data before 2025 is weighted to the 2010 Census and from 2025 to the 2020 Census, so expect a break in the series.
-- `fuelprice`: each date has two rows, one per `series_type`; filter to `level` for prices. Subsidy columns (`ron95_budi95`, `ron95_skps`, `diesel_budi`, `diesel_skds`) are null before their schemes started.
-- `cpi_core`: core CPI is not computed for division `02` (alcoholic beverages and tobacco), whose prices are government-administered.
+## Reference data
+- `dbt/seeds/mcoicop_divisions.csv`: CPI division names (English and Malay) for the 2-digit MCOICOP codes plus `overall`, copied from the DOSM MCOICOP lookup (https://open.dosm.gov.my/data-catalogue/mcoicop, CC BY 4.0) on 2026-10-21.
+
+## Modelling notes (how dbt handles each quirk)
+- `lfs_month`: rates such as `u_rate` are stored as percentages (e.g. `3.5`), not 0-1 ratios, so the dbt columns end in `_pct`. Data before 2025 is weighted to the 2010 Census and from 2025 to the 2020 Census; `fct_labour_force_monthly.population_basis` flags this break.
+- `fuelprice`: each date has two rows, one per `series_type`; staging keeps `level` and the mart recomputes changes. Subsidy columns (`ron95_budi95`, `ron95_skps`, `diesel_budi`, `diesel_skds`) are null before their schemes started.
+- `cpi_core`: core CPI is not computed for division `02` (alcoholic beverages and tobacco), whose prices are government-administered; staging drops those all-null rows.
+
+- All raw folders hold one Parquet file per ingestion day; staging keeps only the latest snapshot (`qualify _ingested_at = max(_ingested_at) over ()`).
 
 ## Schedule
-`.github/workflows/ingest.yml` runs every Thursday 02:00 UTC (after the Wednesday fuel price update) and on demand. It keeps the raw Parquet as a 30-day build artifact until the cloud phase gives it a permanent home. GitHub pauses scheduled workflows after 60 days with no repository activity, and emails the repository owner when a scheduled run fails.
+`.github/workflows/pipeline.yml` runs every Thursday 02:00 UTC (after the Wednesday fuel price update), on demand, and when ingestion or dbt code changes. It ingests, runs `dbt build` and `dbt docs generate`, and keeps the raw Parquet, the DuckDB warehouse and the dbt docs as 30-day build artifacts until the cloud phase gives them a permanent home. GitHub pauses scheduled workflows after 60 days with no repository activity, and emails the repository owner when a scheduled run fails.
