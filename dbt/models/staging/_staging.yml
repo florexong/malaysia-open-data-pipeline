@@ -1,0 +1,78 @@
+version: 2
+
+models:
+  - name: stg_cpi_core
+    description: Core CPI, latest snapshot, typed. One row per month and division; division 02 excluded (no core CPI).
+    data_tests:
+      - unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [month, division_code]
+    columns:
+      - name: month
+        description: First day of the month.
+        data_tests: [not_null]
+      - name: division_code
+        description: MCOICOP 2-digit division code, or 'overall'.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('mcoicop_divisions')
+                field: division_code
+      - name: cpi_index
+        description: Core CPI, base 2010 = 100.
+        data_tests:
+          - not_null
+          - between:
+              arguments:
+                min_value: 0
+                max_value: 1000
+
+  - name: stg_lfs_month
+    description: Labour force survey headline figures, latest snapshot, typed. One row per month.
+    columns:
+      - name: month
+        data_tests: [unique, not_null]
+      - name: labour_force_thousand
+        description: Employed plus unemployed, thousands of persons.
+        data_tests: [not_null]
+      - name: unemployment_rate_pct
+        description: Unemployed / labour force, in percent (3.5 means 3.5%).
+        data_tests:
+          - not_null
+          - between:
+              arguments:
+                min_value: 0
+                max_value: 100
+      - name: participation_rate_pct
+        data_tests:
+          - between:
+              arguments:
+                min_value: 0
+                max_value: 100
+
+  - name: stg_fuelprice
+    description: Retail fuel price levels in RM per litre, latest snapshot. One row per price announcement.
+    columns:
+      - name: effective_date
+        description: Date the price takes effect.
+        data_tests: [unique, not_null]
+      - name: ron95_rm
+        data_tests:
+          - not_null
+          - between:
+              arguments:
+                min_value: 0
+                max_value: 10
+      - name: ron97_rm
+        data_tests:
+          - between:
+              arguments:
+                min_value: 0
+                max_value: 10
+      - name: diesel_peninsular_rm
+        data_tests:
+          - between:
+              arguments:
+                min_value: 0
+                max_value: 10

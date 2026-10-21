@@ -1,0 +1,36 @@
+version: 2
+
+sources:
+  - name: datagovmy
+    description: >
+      Raw Parquet written by ingestion/datagovmy.py, one file per ingestion day. Read in place;
+      staging keeps only the latest snapshot.
+    meta:
+      external_location: "read_parquet('../data/raw/{name}/*.parquet', union_by_name = true)"
+    loaded_at_field: _ingested_at
+    freshness:
+      warn_after: {count: 8, period: day}
+      error_after: {count: 15, period: day}
+    tables:
+      - name: cpi_core
+        description: Core CPI by MCOICOP division, monthly (DOSM, OpenDOSM API).
+        columns:
+          - name: date
+            data_tests: [not_null]
+          - name: division
+            data_tests: [not_null]
+      - name: lfs_month
+        description: Monthly labour force survey headline figures (DOSM, OpenDOSM API).
+        columns:
+          - name: date
+            data_tests: [not_null]
+      - name: fuelprice
+        description: Weekly retail fuel prices and weekly changes (Ministry of Finance, Data Catalogue API).
+        columns:
+          - name: date
+            data_tests: [not_null]
+          - name: series_type
+            data_tests:
+              - accepted_values:
+                  arguments:
+                    values: [level, change_weekly]
